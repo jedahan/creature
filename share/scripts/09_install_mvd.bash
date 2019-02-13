@@ -5,7 +5,7 @@ require git
 require npm nodejs
 
 sudo -u pi git clone https://github.com/evbogue/mvd /home/pi/mvd 2>/dev/null
-/home/pi/mvd
+cd /home/pi/mvd
 sudo -u pi npm install
 sudo -u pi npm run build
 popd # mvd
