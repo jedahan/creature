@@ -14,7 +14,7 @@ IMAGE_NAME := creature
 
 # change if you want a different docker container to build everything
 TAG?=latest
-BUILDER?=lantern/pi-maker:$(TAG)
+BUILDER?=pi-maker:$(TAG)
 
 # Probably do not want to customize these
 IMAGE := build/$(IMAGE_NAME).raspbian.img
@@ -22,7 +22,7 @@ BOOT := build/boot.tar
 ROOT := build/root.tar
 COMBINED := build/combined.tar
 
-.DEFAULT_GOAL := $(IMAGE_NAME)
+.DEFAULT_GOAL := $(IMAGE_NAME).raspbian.img
 
 clean:
 	rm -f build/{combined,root}.tar
