@@ -3,12 +3,12 @@ set -ex
 
 require git
 require npm nodejs
-test -d ~/mvd || git clone https://github.com/jedahan/mvd --branch routerless "$_"
+test -d ~/mvd || git clone https://github.com/evbogue/mvd "$_"
 pushd "$_"
 npm install
 npm run build
 popd # mvd
-export ssb_appname=bac
+export ssb_appname=crt
 grep "^ssb_appname=$ssb_appname\$" /etc/environment >/dev/null || {
     echo "ssb_appname=$ssb_appname" | sudo tee -a /etc/environment
 }

@@ -1,19 +1,19 @@
 server {
     listen 80;
-    server_name baculus.mesh *.baculus.mesh;
+    server_name home.mesh *.home.mesh;
 
     # For iOS
     if ($http_user_agent ~* (CaptiveNetworkSupport) ) {
-        return 302 http://baculus.mesh/captive;
+        return 302 http://home.mesh/captive;
     }
 
     # Android
     location /generate_204 {
-        return 302 http://baculus.mesh/captive;
+        return 302 http://home.mesh/captive;
     }
 
     location / {
-        root /home/pi/baculus/_site;
+        root /home/pi/home/_site;
         try_files $uri $uri/ $uri/index.html /index.html;
     }
 }
@@ -21,17 +21,17 @@ server {
 server {
     listen 80;
     listen [::]:80;
-    server_name baculus.portal *.baculus.portal;
+    server_name home.portal *.home.portal;
 
     location / {
-        return 302 http://baculus.mesh/portal;
+        return 302 http://home.mesh/portal;
     }
 }
 
 server {
     listen 80;
     listen [::]:80;
-    server_name baculus.chat *.baculus.chat;
+    server_name home.chat *.home.chat;
 
     location / {
         proxy_set_header x-real-ip $remote_addr;
@@ -43,27 +43,11 @@ server {
 server {
     listen 80;
     listen [::]:80;
-    server_name baculus.map *.baculus.map;
-
-    location /here {
-      return 302 http://baculus.map/styles/baculus/?vector#13.9/37.3869/-122.0592;
-    }
-
-    location / {
-        proxy_set_header x-real-ip $remote_addr;
-        proxy_set_header host $http_host;
-        proxy_pass http://127.0.0.1:8080;
-    }
-}
-
-server {
-    listen 80;
-    listen [::]:80;
     server_name apple.com *.apple.com;
 
     # macOS
     location /hotspot-detect.html {
-        return 302 http://baculus.mesh/captive;
+        return 302 http://home.mesh/captive;
     }
 }
 
@@ -74,6 +58,6 @@ server {
 
     # android
     location /generate_204 {
-        return 302 http://baculus.mesh/captive;
+        return 302 http://home.mesh/captive;
     }
 }

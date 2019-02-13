@@ -1,8 +1,8 @@
 #!/bin/bash
 
-grep baculus.mesh /etc/hosts >/dev/null && return
+grep home.mesh /etc/hosts >/dev/null && return
 test "$HOSTNAME" || return
 printf "
-127.0.0.1 baculus %s
-10.0.42.1 baculus.mesh baculus.map baculus.chat baculus.portal
+127.0.0.1 home %s
+10.0.42.1 home.mesh
 " "$HOSTNAME" | sudo tee -a /etc/hosts
