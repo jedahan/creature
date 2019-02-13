@@ -1,4 +1,4 @@
 #!/bin/bash
 set -ex
 
-test -f /boot/ssh || sudo touch "$_"
+test -f /boot/ssh || touch "$_"
