@@ -1,12 +1,14 @@
-#!/bin/bash
-
 set -ex
 
-# usage: require package-name
-# if you want to force install a package use `require false package-name`
-# you might want to do that if a package installs a binary with a different name
-
 function require() {
+  if [[ $# -lt 1 ]]; then
+    echo usage: require package-name
+    echo
+    echo if you want to force install a package use `require false package-name`
+    echo you might want to do that if a package installs a binary with a different name
+    return 0
+  fi
+
   local binary=${1}
   shift
   local packages=${*:-$binary}
