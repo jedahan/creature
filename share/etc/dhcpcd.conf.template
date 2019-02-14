@@ -19,6 +19,6 @@ static routers=10.0.42.1
 static domain_name_servers=10.0.42.1
 
 interface wlan1
-static ip_address=10.0.17.SUFFIX/24
+static ip_address=10.0.17.__SUFFIX__/24
 static routers=10.0.17.1
 static domain_name_servers=10.0.42.1
