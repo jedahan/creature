@@ -37,7 +37,7 @@ $(BOOT).xz:
 	curl -L http://vx2-downloads.raspberrypi.org/raspbian_lite/archive/$(DATE)/boot.tar.xz -o $@
 	
 $(ROOT): $(ROOT).xz
-  unxz --keep $^
+	unxz --keep $^
   	
 $(COMBINED): $(ROOT) $(BOOT).xz
 	cd build && \
