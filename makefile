@@ -17,7 +17,6 @@ TAG?=latest
 BUILDER?=pi-maker:$(TAG)
 
 # Probably do not want to customize these
-IMAGE := build/$(IMAGE_NAME).raspbian.img
 BOOT := build/boot.tar
 ROOT := build/root.tar
 COMBINED := build/combined.tar
@@ -37,7 +36,7 @@ $(BOOT).xz:
 	curl -L http://vx2-downloads.raspberrypi.org/raspbian_lite/archive/$(DATE)/boot.tar.xz -o $@
 	
 $(ROOT): $(ROOT).xz
-	unxz --keep $^
+	test -f $(ROOT) || unxz --keep $^
   	
 $(COMBINED): $(ROOT) $(BOOT).xz
 	cd build && \
@@ -56,6 +55,7 @@ $(COMBINED): $(ROOT) $(BOOT).xz
 		-e OS_IMAGE="combined.tar" \
 		-e IMAGE_SIZE="4G" \
 		-e SETUP_SCRIPT=/setup \
+		-e HOSTNAME=$* \
 		-v ${PWD}/share:/share \
 		-v ${PWD}/build:/build \
 		$(BUILDER)
