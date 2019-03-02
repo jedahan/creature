@@ -1,3 +1,6 @@
+import Dat from 'dat-node'
+import raidb from 'random-access-idb'
+
 import React, { useState, useEffect } from 'react'
 import { render, Box, StdinContext, Color } from 'ink'
 import ascii from 'ascii-faces'
@@ -14,13 +17,13 @@ const KeyHandler = ({ stdin, setRawMode, handleKey, children }) => {
   return children
 }
 
-const App = () => {
+const App = ({ initialCreature, setDatCreature, repo }) => {
   const [syncing, setSyncing] = useState(false)
-  const [creature, setCreature] = useState(ascii())
+  const [creature, setCreature] = useState(initialCreature)
 
   const handleKey = data => {
     if (data === 's') setSyncing(syncing => !syncing)
-    if (data === 'p') setCreature(ascii())
+    if (data === 'p') setDatCreature(repo, setCreature)
   }
 
   return (
@@ -68,4 +71,39 @@ const Sync = ({ syncing }) => {
   )
 }
 
-render(<App />)
+Dat('./', (err, dat) => {
+  if (err) throw err
+  dat.importFiles()
+  dat.joinNetwork()
+  const datKey = dat.key.toString('hex')
+  render(<App initialCreature={data.creature} setDatCreature={setDatCreature} datKey={datKey} />)
+})
+
+
+const db = raidb('dats')
+const dat = new Dat()
+
+const creature_file = 'creature-a.json'
+
+const setDatCreature = (repo, cb) => {
+  const newCreature = { creature: ascii() }
+  repo.archive.writeFile(creature_file, JSON.stringify(newCreature), (err) => {
+    cb(err, newCreature.creature)
+  })
+}
+
+if (!localStorage.getItem('creature_repo_url')) {
+  const repo = dat.create({ db })
+  setDatCreature((err, creature) => {
+    localStorage.setItem('creature_repo_url', repo.url)
+  })
+}
+
+const creature_repo_url = localStorage.getItem('creature_repo_url')
+const repo = dat.get(creature_repo_url, { db })
+
+repo.archive.readFile(creature_file, 'utf-8', (err, data) => {
+  if (err) throw err
+  render(<App initialCreature={data.creature} repo={repo} setDatCreature={setDatCreature} />)
+})
+
