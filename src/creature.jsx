@@ -3,18 +3,17 @@ import blessed from 'neo-blessed'
 import { createBlessedRenderer } from 'react-blessed'
 const render = createBlessedRenderer(blessed)
 
-import funname from './name.js'
-
 const App = () => {
   return (
     <>
+      <Pid />
+      <Sync />
       <box label='creature'
            border={{type: 'line'}}
+           left='60%'
            style={{border: {fg: 'red'} }} >
         {'creature box'}
       </box>
-      <Pid />
-      <Sync />
     </>
   )
 }
@@ -36,12 +35,14 @@ const Sync = () => {
 
   return (
     <box label="syncing"
-         width='20%'
+         width='40%'
          left='20%'
          border={{type: 'line'}}
          style={{border: {fg: 'orange'}}} >
+
       {syncing ? 'syncing' : 'not syncing'}
-      <button mouse onPress={() => setSyncing(!syncing)}>toggle</button>
+
+      <button mouse border={{type: 'line'}} height={5} width={5} top={2} left={4} onPress={() => setSyncing(!syncing)}>+</button>
     </box>
   )
 }
