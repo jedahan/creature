@@ -1,0 +1,37 @@
+{
+  "name": "creature",
+  "version": "1.0.0",
+  "description": "digital, peer-to-peer, creature",
+  "main": "index.js",
+  "scripts": {
+    "run": "node run.js",
+    "start": "ssb_appname=creature ssb-server start --logging.level=info",
+    "heartbeat": "ssb_appname=creature node heartbeat.js",
+    "beat": "ssb_appname=creature ssb-server publish --type heartbeat --bpm $(( 80+ ($RANDOM % 40) ))",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jedahan/creature.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jedahan/creature/issues"
+  },
+  "homepage": "https://github.com/jedahan/creature#readme",
+  "dependencies": {
+    "@babel/core": "^7.3.4",
+    "@babel/preset-env": "^7.3.4",
+    "@babel/preset-react": "^7.0.0",
+    "@babel/register": "^7.0.0",
+    "dat": "^13.11.5",
+    "neo-blessed": "^0.2.0",
+    "react": "^16.8.3",
+    "react-blessed": "^0.5.0",
+    "react-devtools-core": "^3.6.0",
+    "react-reconciler": "^0.20.1",
+    "ssb-server": "^14.1.2",
+    "ws": "^6.1.4"
+  }
+}
