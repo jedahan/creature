@@ -1,60 +1,68 @@
-import React, { useState } from 'react'
-import blessed from 'neo-blessed'
-import { createBlessedRenderer } from 'react-blessed'
-const render = createBlessedRenderer(blessed)
+import React, { useState, useEffect } from 'react'
+import { render, Box, StdinContext } from 'ink'
+import ascii from 'ascii-faces'
+
+const KeyHandler = ({ stdin, setRawMode, handleKey, children }) => {
+  useEffect(() => {
+    setRawMode(true)
+    stdin.on('data', handleKey)
+    return () => {
+      stdin.off('data', handleKey)
+      setRawMode(false)
+    }
+  }, [stdin, setRawMode])
+  return children
+}
 
 const App = () => {
+  const [syncing, setSyncing] = useState(false)
+  const [creature, setCreature] = useState(ascii())
+
+  const handleKey = data => {
+    if (data === 's') setSyncing(syncing => !syncing)
+    if (data === 'p') setCreature(ascii())
+  }
+
   return (
-    <>
-      <Pid />
-      <Sync />
-      <box label='creature'
-        border={{ type: 'line' }}
-        left='60%'
-        style={{ border: { fg: 'red' } }} >
-        {'creature box'}
-      </box>
-    </>
+    <StdinContext.Consumer>
+      {({ stdin, setRawMode }) => {
+        return (
+          <KeyHandler stdin={stdin} setRawMode={setRawMode} handleKey={handleKey} >
+            <Pid />
+            <Sync syncing={syncing} />
+            <Creature creature={creature} />
+            <Box>Press 's' to toggle syncing</Box>
+            <Box>Press 'p' to pet the creature</Box>
+          </KeyHandler>
+        )
+      }}
+    </StdinContext.Consumer>
+  )
+}
+
+const Creature = ({ creature }) => {
+  return (
+    <Box>
+      creature: {creature}
+    </Box>
   )
 }
 
 const Pid = () => {
   const [pid, setPid] = useState(process.pid || 'no pid')
   return (
-    <box label="pid"
-      width='20%'
-      border={{ type: 'line' }}
-      style={{ border: { fg: 'cyan' } }} >
-      {pid}
-    </box>
+    <Box>
+      pid: {pid}
+    </Box>
   )
 }
 
-const Sync = () => {
-  const [syncing, setSyncing] = useState(false)
-
+const Sync = ({ syncing }) => {
   return (
-    <box label="syncing"
-      width='40%'
-      left='20%'
-      border={{ type: 'line' }}
-      style={{ border: { fg: 'orange' } }} >
-
-      {syncing ? 'syncing' : 'not syncing'}
-
-      <button mouse border={{ type: 'line' }} height={5} width={5} top={2} left={4} onPress={() => setSyncing(!syncing)}>+</button>
-    </box>
+    <Box label="syncing" width={2} left={2} >
+      syncing: {syncing ? '✓' : '✘'}
+    </Box>
   )
 }
 
-const screen = blessed.screen({
-  autoPadding: true,
-  smartCSR: true,
-  title: 'creature test'
-})
-
-screen.key(['escape', 'q', 'C-c'], (ch, key) => {
-  return process.exit(0)
-})
-
-render(<App />, screen)
+render(<App />)

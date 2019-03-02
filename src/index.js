@@ -4,4 +4,4 @@ require('@babel/register')({
     ["@babel/preset-react"]
   ]
 })
-require('./src/creature')
+require('./creature')
