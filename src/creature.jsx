@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { render, Box, StdinContext } from 'ink'
+import { render, Box, StdinContext, Color } from 'ink'
 import ascii from 'ascii-faces'
 
 const KeyHandler = ({ stdin, setRawMode, handleKey, children }) => {
@@ -29,10 +29,17 @@ const App = () => {
         return (
           <KeyHandler stdin={stdin} setRawMode={setRawMode} handleKey={handleKey} >
             <Pid />
-            <Sync syncing={syncing} />
-            <Creature creature={creature} />
-            <Box>Press 's' to toggle syncing</Box>
-            <Box>Press 'p' to pet the creature</Box>
+
+            <Box flexDirection="column">
+              <Box flexDirection="row" justifyContent="space-between">
+                <Box>'p' - pet creature</Box>
+                <Box>'s' - toggle sync</Box>
+              </Box>
+              <Box flexDirection="row" justifyContent="space-between">
+                <Creature creature={creature} />
+                <Sync syncing={syncing} />
+              </Box>
+            </Box>
           </KeyHandler>
         )
       }}
@@ -40,13 +47,9 @@ const App = () => {
   )
 }
 
-const Creature = ({ creature }) => {
-  return (
-    <Box>
-      creature: {creature}
-    </Box>
-  )
-}
+const Creature = ({ creature }) => (
+  <Box><Color blue>{creature}</Color></Box>
+)
 
 const Pid = () => {
   const [pid, setPid] = useState(process.pid || 'no pid')
@@ -59,9 +62,9 @@ const Pid = () => {
 
 const Sync = ({ syncing }) => {
   return (
-    <Box label="syncing" width={2} left={2} >
-      syncing: {syncing ? '✓' : '✘'}
-    </Box>
+    <Box label="syncing">
+      {syncing ? <Color green>✓ syncing</Color> : <Color red>✘ not syncing </Color>}
+    </Box >
   )
 }
 
