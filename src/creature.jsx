@@ -16,9 +16,12 @@ const KeyHandler = ({ stdin, setRawMode, handleKey, children }) => {
   return children
 }
 
-const App = ({ initialCreature, updateCreature, datKey }) => {
+const App = ({ initialCreature, updateCreature, dat, network }) => {
   const [syncing, setSyncing] = useState(false)
   const [creature, setCreature] = useState(initialCreature)
+  const [creatures, setCreatures] = useState()
+  const [networkInfo, setNetworkInfo] = useState({ id: null, host: null })
+  const [connectionInfo, setConnectionInfo] = useState({ remoteId: null, key: null, discoveryKey: null })
 
   const handleKey = data => {
     if (data === 's') setSyncing(syncing => !syncing)
@@ -26,10 +29,22 @@ const App = ({ initialCreature, updateCreature, datKey }) => {
     if (data === 'q') process.exit(0)
   }
 
+  const handleConnection = (connectionInfo, networkInfo) => {
+    const { remoteId, key, discoveryKey } = connectionInfo
+    const { id, host } = networkInfo
+    setConnectionInfo({ remoteId, key, discoveryKey })
+    setNetworkInfo({ id, host })
+  }
+
   // update creature on the backend
   useEffect(() => {
     updateCreature({ creature })
   }, [creature])
+
+  useEffect(() => {
+    network.on('connection', handleConnection)
+    return () => network.off('connection', handleConnection)
+  }, [network])
 
   return (
     <StdinContext.Consumer>
@@ -37,7 +52,6 @@ const App = ({ initialCreature, updateCreature, datKey }) => {
         return (
           <KeyHandler stdin={stdin} setRawMode={setRawMode} handleKey={handleKey} >
             <Pid />
-
             <Box flexDirection="column">
               <Box flexDirection="row" justifyContent="space-between">
                 <Box>'p' - pet creature</Box>
@@ -46,9 +60,16 @@ const App = ({ initialCreature, updateCreature, datKey }) => {
               </Box>
               <Box flexDirection="row" justifyContent="space-between">
                 <Creature creature={creature} />
-                <DatKey datKey={datKey} />
+                <DatElement dat={dat} />
                 <Sync syncing={syncing} />
               </Box>
+
+              <Box flexDirection="row">
+                <NetworkInfo networkInfo={networkInfo} connectionInfo={connectionInfo} />
+              </Box>
+              {creatures.forEach(creature => (
+                <Creature creature={creature} />
+              ))}
             </Box>
           </KeyHandler>
         )
@@ -57,13 +78,31 @@ const App = ({ initialCreature, updateCreature, datKey }) => {
   )
 }
 
+const NetworkInfo = ({ connectionInfo, networkInfo }) => {
+  const { remoteId, key, discoveryKey } = connectionInfo
+  const { id, host } = networkInfo
+
+  return (
+    <Box flexDirection="column">
+      <Box>{id ? id.toString('hex') : 'no id'}</Box>
+      <Box>({host ? host : 'no host'})</Box>
+      <Box>{remoteId ? remoteId.toString('hex') : ''}</Box>
+      <Box>{key ? key.toString('hex') : ''}</Box>
+      <Box>{discoveryKey ? discoveryKey.toString('hex') : ''}</Box>
+    </Box>
+  )
+}
+
 const Creature = ({ creature }) => (
   <Box><Color blue>{creature}</Color></Box>
 )
 
-const DatKey = ({ datKey }) => (
-  <Box><Color yellow>( dat://{datKey} )</Color></Box>
-)
+const DatElement = ({ dat }) => {
+  const key = dat.key && dat.key.toString('hex')
+  return (
+    <Box><Color yellow>( dat://{key} )</Color></Box>
+  )
+}
 
 const Pid = () => {
   const [pid, setPid] = useState(process.pid || 'no pid')
@@ -83,21 +122,31 @@ const Sync = ({ syncing }) => {
 }
 
 import fs from 'fs'
-const creature_file = 'creature-a.json'
+if (process.argv.length < 3) {
+  console.error('please share a filename for the creature')
+  process.exit(1)
+}
+const filePath = process.argv[2]
+const path = require('path')
+const datPath = path.dirname(filePath)
 
-Dat('./', (err, dat) => {
-  if (err) throw err
-  dat.importFiles()
-  dat.joinNetwork()
-  const datKey = dat.key.toString('hex')
-  const filePath = `${dat.path}/${creature_file}`
+Dat(datPath, (err, dat) => {
+  if (err) console.error(err)
+  const progress = dat.importFiles({ watch: true })
+  progress.on('put', (src, dest) => {
+    console.log('Importing ', src.name, ' into archive')
+  })
+  const network = dat.joinNetwork()
   const updateCreature = ({ creature }) => {
-    fs.writeFile(filePath, JSON.stringify({ creature }), (err) => { if (err) throw err })
+    fs.writeFile(filePath, JSON.stringify({ creature }), (err) => {
+      if (err) console.error(err)
+    })
   }
 
+
   fs.readFile(filePath, (err, data) => {
-    if (err) throw err
+    if (err) console.error(err)
     const { creature } = JSON.parse(data)
-    render(<App initialCreature={creature} updateCreature={updateCreature} datKey={datKey} />)
+    render(<App initialCreature={creature} updateCreature={updateCreature} dat={dat} network={network} />)
   })
 })
