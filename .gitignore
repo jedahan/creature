@@ -1,2 +1,6 @@
 build
 node_modules
+remote/
+.dat/
+creature-*.json
+.DS_Store
