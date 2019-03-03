@@ -19,9 +19,15 @@ const KeyHandler = ({ stdin, setRawMode, handleKey, children }) => {
 const App = ({ initialCreature, updateCreature, dat, network }) => {
   const [syncing, setSyncing] = useState(false)
   const [creature, setCreature] = useState(initialCreature)
-  const [creatures, setCreatures] = useState()
+  const [creatures, setCreatures] = useState([])
   const [networkInfo, setNetworkInfo] = useState({ id: null, host: null })
   const [connectionInfo, setConnectionInfo] = useState({ remoteId: null, key: null, discoveryKey: null })
+
+  // pause and resume syncing with dat
+  useEffect(() => {
+    if (syncing) dat.resume()
+    else dat.pause()
+  }, [syncing])
 
   const handleKey = data => {
     if (data === 's') setSyncing(syncing => !syncing)
