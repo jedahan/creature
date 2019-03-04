@@ -1,25 +1,28 @@
-import Dat from 'dat-node'
-import process from 'process'
-import React, { useState, useEffect } from 'react'
-import { render, Box, StdinContext } from 'ink'
+import React, { useState, useEffect, useContext } from 'react'
+import { render, StdinContext } from 'ink'
 import ascii from 'ascii-faces'
 
-import { Pid } from './components/Pid'
-import { DatKey } from './components/DatKey'
-import { Sync } from './components/Sync'
-import { Creature } from './components/Creature'
-import { NetworkInfo } from './components/NetworkInfo'
+import { Dashboard } from './components/Dashboard'
 
-const KeyHandler = ({ stdin, setRawMode, handleKey, children }) => {
+const useKeyHandler = keyHandler => {
+  const { stdin, setRawMode } = useContext(StdinContext)
+
   useEffect(() => {
     setRawMode(true)
-    stdin.on('data', handleKey)
+    stdin.on('data', keyHandler)
     return () => {
-      stdin.off('data', handleKey)
+      stdin.off('data', keyHandler)
       setRawMode(false)
     }
   }, [stdin, setRawMode])
-  return children
+}
+
+const useConnectionHandler = (network, connectionHandler) => {
+  // subscribe to network updates
+  useEffect(() => {
+    network.on('connection', connectionHandler)
+    return () => network.off('connection', connectionHandler)
+  }, [network])
 }
 
 const App = ({ initialCreature, updateCreature, dat, network }) => {
@@ -29,18 +32,20 @@ const App = ({ initialCreature, updateCreature, dat, network }) => {
   const [networkInfo, setNetworkInfo] = useState({ id: null, host: null })
   const [connectionInfo, setConnectionInfo] = useState({ remoteId: null, key: null, discoveryKey: null })
 
-  const handleKey = data => {
+  // handle keypresses
+  useKeyHandler(data => {
     if (data === 's') setSyncing(syncing => !syncing)
     if (data === 'p') setCreature(ascii())
     if (data === 'q') process.exit(0)
-  }
+  })
 
-  const handleConnection = (connectionInfo, networkInfo) => {
+  // handle network conneciton and disconnection
+  useConnectionHandler(network, (connectionInfo, networkInfo) => {
     const { remoteId, key, discoveryKey } = connectionInfo
     const { id, host } = networkInfo
     setConnectionInfo({ remoteId, key, discoveryKey })
     setNetworkInfo({ id, host })
-  }
+  })
 
   // update creature on the backend
   useEffect(() => {
@@ -53,59 +58,23 @@ const App = ({ initialCreature, updateCreature, dat, network }) => {
     else dat.pause()
   }, [syncing])
 
-  // subscribe to network updates
-  useEffect(() => {
-    network.on('connection', handleConnection)
-    return () => network.off('connection', handleConnection)
-  }, [network])
-
   return (
-    <StdinContext.Consumer>
-      {({ stdin, setRawMode }) => {
-        return (
-          <KeyHandler stdin={stdin} setRawMode={setRawMode} handleKey={handleKey} >
-            <Box flexDirection="column">
-              <Box flexDirection="row" justifyContent="space-between">
-                <Box>'p' - pet creature</Box>
-                <Box>'q' - quit</Box>
-                <Box>'s' - toggle sync</Box>
-              </Box>
-              <Box flexDirection="row" justifyContent="space-between">
-                <Creature creature={creature} />
-                <DatKey dat={dat} />
-                <Sync syncing={syncing} />
-              </Box>
-
-              <Box flexDirection="row">
-                <NetworkInfo networkInfo={networkInfo} connectionInfo={connectionInfo} />
-              </Box>
-              {creatures.forEach(creature => (
-                <Creature creature={creature} />
-              ))}
-            </Box>
-          </KeyHandler>
-        )
-      }}
-    </StdinContext.Consumer>
+    <Dashboard {...{ creature, dat, syncing, networkInfo, connectionInfo, creatures }} />
   )
 }
 
 import fs from 'fs'
 
-if (process.argv.length < 3) {
-  console.error('please share a filename for the creature')
-  process.exit(1)
-}
-const filePath = process.argv[2]
-const path = require('path')
-const datPath = path.dirname(filePath)
+import createDat from 'dat-node'
 
-Dat(datPath, (err, dat) => {
+import { getPath } from './getPath'
+
+const { filePath, datPath } = getPath()
+
+const handleDat = (err, dat) => {
   if (err) console.error(err)
-  const progress = dat.importFiles({ watch: true })
-  progress.on('put', (src, dest) => {
-    console.log('Importing ', src.name, ' into archive')
-  })
+
+  dat.importFiles({ watch: true })
   const network = dat.joinNetwork()
   const updateCreature = ({ creature }) => {
     fs.writeFile(filePath, JSON.stringify({ creature }), (err) => {
@@ -115,7 +84,9 @@ Dat(datPath, (err, dat) => {
 
   fs.readFile(filePath, (err, data) => {
     if (err) console.error(err)
-    const { creature } = JSON.parse(data)
-    render(<App initialCreature={creature} updateCreature={updateCreature} dat={dat} network={network} />)
+    const { creature: initialCreature } = JSON.parse(data)
+    render(<App {...{ initialCreature, updateCreature, dat, network }} />)
   })
-})
+}
+
+createDat(datPath, handleDat)
