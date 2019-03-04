@@ -32,6 +32,7 @@
     "dat-node": "^3.5.14",
     "import-jsx": "^1.3.0",
     "ink": "^2.0.0-16",
+    "ink-link": "github:vadimdemedes/ink-link#next",
     "random-access-idb": "^1.2.1",
     "react": "^16.8.3"
   },

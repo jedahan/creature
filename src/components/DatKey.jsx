@@ -6,7 +6,7 @@ const DatKey = ({ dat }) => {
   const key = dat.key && dat.key.toString('hex')
   const url = `dat://${key}`
   return (
-    <Box borderStyle="round" borderColor="cyan">
+    <Box borderStyle="round">
       <Color yellow>{url}</Color>
     </Box>
   )
