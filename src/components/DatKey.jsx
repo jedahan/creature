@@ -1,9 +1,15 @@
 import React from 'react'
-import { Box, Color } from 'ink'
+import { Color } from 'ink'
+import Box from 'ink-box'
 
 const DatKey = ({ dat }) => {
   const key = dat.key && dat.key.toString('hex')
-  return (<Box><Color yellow>dat://{key}</Color></Box>)
+  const url = `dat://${key}`
+  return (
+    <Box borderStyle="round" borderColor="cyan">
+      <Color yellow>{url}</Color>
+    </Box>
+  )
 }
 
 export { DatKey }
