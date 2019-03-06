@@ -4,3 +4,4 @@ remote/
 .dat/
 creature-*.json
 .DS_Store
+package-lock.json

@@ -1,0 +1,37 @@
+download [raspbian stretch lite][]
+
+    curl -OLC http://vx2-downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2018-11-15/2018-11-13-raspbian-stretch-lite.zip
+
+check shasum
+
+    curl -sOL http://vx2-downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2018-11-15/2018-11-13-raspbian-stretch-lite.zip.sha256
+    shasum --check 2018-11-13-raspbian-stretch-lite.zip.sha256
+
+burn to sd card
+
+    etcher /dev/rdisk2 2018-11-13-raspbian-stretch-lite.zip
+
+unplug and plug back in to configure network
+
+    amp /Volumes/boot/wpa_supplicant.conf
+    network={
+      ssid="the tergiplex"
+      psk="fuckshoes"
+    }
+enable ssh
+
+    touch /Volumes/boot/ssh
+
+umount
+
+    sudo unmount /Volumes/boot
+
+boot pi && ssh in
+
+    ssh pi@raspberry.local
+
+install hostapd and dnsmask
+
+    sudo apt install dnsmasq hostapd
+
+[raspbian stretch lite]: (http://vx2-downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2018-11-15/2018-11-13-raspbian-stretch-lite.zip)
