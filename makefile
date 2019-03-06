@@ -54,6 +54,7 @@ $(COMBINED): $(ROOT) $(BOOT).xz
 	docker run -it --privileged \
 		-e OS_IMAGE="combined.tar" \
 		-e IMAGE_SIZE="4G" \
+		-e IMAGE_NAME=$@ \
 		-e SETUP_SCRIPT=/setup \
 		-e HOSTNAME=$* \
 		-v ${PWD}/share:/share \
