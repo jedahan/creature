@@ -1,6 +1,6 @@
 #!/bin/bash
 
-curl -sL https://deb.nodesource.com/setup_8.x | bash -
+curl -sL https://deb.nodesource.com/setup_10.x | bash -
 
 export NPM_CONFIG_PREFIX=/home/pi/npm
 sudo -u pi mkdir -p $NPM_CONFIG_PREFIX
