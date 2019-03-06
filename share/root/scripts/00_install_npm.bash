@@ -10,3 +10,5 @@ export PATH=$NPM_CONFIG_PREFIX/bin:$PATH
 grep PATH /etc/environment || echo PATH="$PATH" >> /etc/environment
 
 require npm nodejs
+
+sudo -u pi npm install -g dat
