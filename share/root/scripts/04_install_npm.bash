@@ -3,7 +3,6 @@
 require curl
 require grep
 require sudo
-require npm nodejs
 
 curl -sL https://deb.nodesource.com/setup_10.x | bash -
 
@@ -13,4 +12,4 @@ source /etc/environment
 
 sudo -u pi NPM_CONFIG_PREFIX=$NPM_CONFIG_PREFIX mkdir -p $NPM_CONFIG_PREFIX
 
-sudo -u pi NPM_CONFIG_PREFIX=$NPM_CONFIG_PREFIX npm install --global --unsafe-perm dat
+require npm nodejs
