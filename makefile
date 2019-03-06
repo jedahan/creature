@@ -10,7 +10,7 @@ SHELL := /bin/bash
 DATE := 2018-11-15-21:03
 
 # what image name would you like?
-IMAGE_NAME := creature
+IMAGE_NAME := gardena
 
 # change if you want a different docker container to build everything
 TAG?=latest
