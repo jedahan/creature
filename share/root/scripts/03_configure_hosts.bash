@@ -1,4 +1,5 @@
 #!/bin/bash
+set -ex
 
 grep home.mesh /etc/hosts >/dev/null && return
 test "$HOSTNAME" || return
