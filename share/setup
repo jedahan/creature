@@ -23,4 +23,4 @@ export -f require
 
 echo "running setup..."
 
-for script in /root/scripts/*; do $script; done
+for script in /root/scripts/*; do $script || bash; done
