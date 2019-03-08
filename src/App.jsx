@@ -1,21 +1,9 @@
-import React, { useState, useEffect, useContext } from 'react'
-import { render, StdinContext } from 'ink'
+import React, { useState, useEffect } from 'react'
+import { render } from 'ink'
 import ascii from 'ascii-faces'
 
 import { Dashboard } from './components/Dashboard'
-
-const useKeyHandler = keyHandler => {
-  const { stdin, setRawMode } = useContext(StdinContext)
-
-  useEffect(() => {
-    setRawMode(true)
-    stdin.on('data', keyHandler)
-    return () => {
-      stdin.off('data', keyHandler)
-      setRawMode(false)
-    }
-  }, [stdin, setRawMode])
-}
+import { useKeypress } from './hooks/useKeypress'
 
 const useConnectionHandler = (network, connectionHandler) => {
   // subscribe to network updates
@@ -33,10 +21,12 @@ const App = ({ initialCreature, updateCreature, dat, network }) => {
   const [connectionInfo, setConnectionInfo] = useState({ remoteId: null, key: null, discoveryKey: null })
 
   // handle keypresses
-  useKeyHandler(data => {
-    if (data === 's') setSyncing(syncing => !syncing)
-    if (data === 'p') setCreature(ascii())
-    if (data === 'q') process.exit(0)
+  useKeypress((str, key) => {
+    console.dir({ str })
+    console.dir({ key })
+    if (str === 's') setSyncing(syncing => !syncing)
+    if (str === 'p') setCreature(ascii())
+    if (str === 'q') process.exit(0)
   })
 
   // handle network conneciton and disconnection
