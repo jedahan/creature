@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node src/index.js",
+    "rotating": "node examples/rotatingWrapper.js",
     "server": "ssb_appname=creature ssb-server start --logging.level=info",
     "heartbeat": "ssb_appname=creature node heartbeat.js",
     "beat": "ssb_appname=creature ssb-server publish --type heartbeat --bpm $(( 80+ ($RANDOM % 40) ))",
