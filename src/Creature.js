@@ -29,7 +29,9 @@ class Creature extends EventEmitter {
       this.network.on('connection', (connectionInfo, networkInfo) => {
         const { remoteId, key, discoveryKey } = connectionInfo
         const { id, host } = networkInfo
-        this.emit('connection', { id, remoteId, key, discoveryKey, host })
+        const connection = { id, remoteId, key, discoveryKey, host }
+        Object.entries(connection).forEach(([k, v]) => k !== 'host' ? connection[k] = v.toString('hex') : '')
+        this.emit('connection', connection)
       })
       this.network.on('listening', () => {
         this.emit('created', this)
@@ -48,7 +50,6 @@ class Creature extends EventEmitter {
   update({ creature }) {
     fs.writeFile(this.filePath, JSON.stringify({ creature }), (err) => {
       if (err) console.error(err)
-      this.emit('update', { creature })
     })
   }
 }
