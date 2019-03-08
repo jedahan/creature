@@ -5,9 +5,9 @@ import { DatKey } from './DatKey'
 import { Sync } from './Sync'
 import { Creature } from './Creature'
 
-const Dashboard = ({ creature, dat, syncing, creatures }) => (
+const Dashboard = ({ creature, syncing, creatures }) => (
   <>
-    <DatKey dat={dat} />
+    <DatKey datKey={creature.datKey} />
     <Box>
       <Box flexDirection="column" paddingX={1}>
         <Box flexDirection="row"><Text underline>p</Text>et creature</Box>
@@ -18,7 +18,6 @@ const Dashboard = ({ creature, dat, syncing, creatures }) => (
       <Box flexDirection="column" paddingX={1}>
         <Creature creature={creature} />
         <Sync syncing={syncing} />
-
       </Box>
 
       <Box flexDirection="column" paddingX={1}>

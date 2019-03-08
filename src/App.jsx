@@ -5,76 +5,52 @@ import ascii from 'ascii-faces'
 import { Dashboard } from './components/Dashboard'
 import { useKeypress } from './hooks/useKeypress'
 
-const useConnectionHandler = (network, connectionHandler) => {
-  // subscribe to network updates
-  useEffect(() => {
-    network.on('connection', connectionHandler)
-    return () => network.off('connection', connectionHandler)
-  }, [network])
-}
-
-const App = ({ initialCreature, updateCreature, dat, network }) => {
+const App = ({ creature }) => {
   const [syncing, setSyncing] = useState(false)
-  const [creature, setCreature] = useState(initialCreature)
+  const [face, setFace] = useState(creature.face)
   const [creatures, setCreatures] = useState([])
-  const [networkInfo, setNetworkInfo] = useState({ id: null, host: null })
-  const [connectionInfo, setConnectionInfo] = useState({ remoteId: null, key: null, discoveryKey: null })
+  const [connection, setConnection] = useState({ id: null, remoteId: null, key: null, discoveryKey: null, host: null })
 
   // handle keypresses
   useKeypress((str, key) => {
     if (str === 's') setSyncing(syncing => !syncing)
-    if (str === 'p') setCreature(ascii())
+    if (str === 'p') setFace(ascii())
     if (str === 'q') process.exit(0)
   })
 
-  // handle network conneciton and disconnection
-  useConnectionHandler(network, (connectionInfo, networkInfo) => {
-    const { remoteId, key, discoveryKey } = connectionInfo
-    const { id, host } = networkInfo
-    setConnectionInfo({ remoteId, key, discoveryKey })
-    setNetworkInfo({ id, host })
-  })
+  useEffect(() => {
+    creature.on('connection', setConnection)
+    return () => creature.off('connection', setConnection)
+  }, [creature])
 
   // update creature on the backend
   useEffect(() => {
-    updateCreature({ creature })
-  }, [creature])
+    creature.update({ creature: face })
+  }, [face])
 
   // pause and resume syncing with dat
   useEffect(() => {
-    if (syncing) dat.resume()
-    else dat.pause()
+    if (syncing) creature.resume()
+    else creature.pause()
   }, [syncing])
 
   return (
-    <Dashboard {...{ creature, dat, syncing, networkInfo, connectionInfo, creatures }} />
+    <Dashboard {...{ creature, syncing, connection, creatures }} />
   )
 }
 
-import fs from 'fs'
-
-import createDat from 'dat-node'
-
 import { getPath } from './getPath'
-
+import { Creature } from './Creature'
+const initialFace = 'what face'
 const { filePath, datPath } = getPath()
+const creature = new Creature({ initialFace, filePath, datPath })
 
-const handleDat = (err, dat) => {
-  if (err) console.error(err)
+creature.on('created', (newCreature) => {
+  newCreature.on('connection', console.dir)
+  newCreature.on('update', console.dir)
+  setInterval(() => {
+    newCreature.update({ creature: ascii() })
+  }, 5000)
+})
 
-  dat.importFiles({ watch: true })
-  const network = dat.joinNetwork()
-  const updateCreature = ({ creature }) => {
-    fs.writeFile(filePath, JSON.stringify({ creature }), (err) => {
-      if (err) console.error(err)
-    })
-  }
-
-  fs.readFile(filePath, (err, data) => {
-    if (err) console.error(err)
-    const { creature: initialCreature } = JSON.parse(data)
-    render(<App {...{ initialCreature, updateCreature, dat, network }} />)
-  })
-}
-
-createDat(datPath, handleDat)
+creature.sync()
