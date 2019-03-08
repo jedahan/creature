@@ -22,8 +22,6 @@ const App = ({ initialCreature, updateCreature, dat, network }) => {
 
   // handle keypresses
   useKeypress((str, key) => {
-    console.dir({ str })
-    console.dir({ key })
     if (str === 's') setSyncing(syncing => !syncing)
     if (str === 'p') setCreature(ascii())
     if (str === 'q') process.exit(0)
