@@ -20,7 +20,11 @@ class Creature extends EventEmitter {
       if (err) console.error(err)
       this.dat = dat
       this.datKey = this.dat.key
-      this.dat.importFiles({ watch: true })
+      this.files = this.dat.importFiles({ watch: true })
+      let data = ''
+      this.files.on('put', () => data = '')
+      this.files.on('put-data', (chunk) => data += chunk)
+      this.files.on('put-end', () => this.emit('update', JSON.parse(data)))
       this.network = this.dat.joinNetwork()
       this.network.on('connection', (connectionInfo, networkInfo) => {
         const { remoteId, key, discoveryKey } = connectionInfo
