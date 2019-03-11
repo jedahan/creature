@@ -4,4 +4,4 @@ require('@babel/register')({
     ["@babel/preset-react"]
   ]
 })
-require('./rotating')
+require(process.argv[2])

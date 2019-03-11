@@ -4,8 +4,9 @@
   "description": "digital, peer-to-peer, creature",
   "main": "src/Creature.js",
   "scripts": {
-    "start": "node src/index.js",
-    "rotating": "node examples/rotatingWrapper.js"
+    "wrap": "node examples/wrap.js",
+    "local": "npm run wrap ./local.js",
+    "remote": "npm run wrap ./remote.js"
   },
   "repository": {
     "type": "git",

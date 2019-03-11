@@ -4,7 +4,7 @@ import path from 'path'
 import { EventEmitter } from 'events'
 
 /**
- * A Creature is a dat-synced file. It can be local or remote.
+ * A Creature is a dat-synced object. It can be local or remote.
  *
  * Sync a remote creature to the `.dat` folder:
  * 
@@ -21,8 +21,8 @@ import { EventEmitter } from 'events'
  * 
  * Once you have a creature, there are some events that can happen:
  * 
- *       `create`: when we are connected to the network
- *       `update`: when the data has changed
+ *        `create`: when we are connected to the network
+ *        `update`: when the data has changed - will happen multiple times
  *    `connection`: when another dat note has connected to our data
  * 
  * The `update` event gets emitted twice, once when the file changes, 
@@ -63,12 +63,14 @@ class Creature extends EventEmitter {
       if (err) console.error(err)
       this[_dat] = dat
 
-      // Sync files to the given folder, and emit when updated
-      this[_files] = this[_dat].importFiles({ watch: true })
-      let data = ''
-      this[_files].on('put', () => data = '')
-      this[_files].on('put-data', (chunk) => data += chunk)
-      this[_files].on('put-end', () => this.update(JSON.parse(data)))
+      if (!this[_key]) {
+        // Sync files to the given folder, and emit when updated
+        this[_files] = this[_dat].importFiles({ watch: true })
+        let data = ''
+        this[_files].on('put', () => data = '')
+        this[_files].on('put-data', (chunk) => data += chunk)
+        this[_files].on('put-end', () => this.update(JSON.parse(data)))
+      }
 
       // Sync with the dat network, and emit when we see a new connection
       this[_network] = this[_dat].joinNetwork()
@@ -98,7 +100,7 @@ class Creature extends EventEmitter {
     }
 
     if (this[_key]) {
-      Dat(this[_datPath], { key }, setDat)
+      Dat(this[_datPath], { key: this[_key] }, setDat)
     } else {
       Dat(this[_datPath], setDat)
     }
