@@ -1,15 +1,11 @@
 {
-  "name": "creature",
+  "name": "dwc-creature",
   "version": "0.0.1",
   "description": "digital, peer-to-peer, creature",
   "main": "src/Creature.js",
   "scripts": {
     "start": "node src/index.js",
-    "rotating": "node examples/rotatingWrapper.js",
-    "server": "ssb_appname=creature ssb-server start --logging.level=info",
-    "heartbeat": "ssb_appname=creature node heartbeat.js",
-    "beat": "ssb_appname=creature ssb-server publish --type heartbeat --bpm $(( 80+ ($RANDOM % 40) ))",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "rotating": "node examples/rotatingWrapper.js"
   },
   "repository": {
     "type": "git",
