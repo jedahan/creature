@@ -1,8 +1,8 @@
 {
   "name": "creature",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "digital, peer-to-peer, creature",
-  "main": "index.js",
+  "main": "src/Creature.js",
   "scripts": {
     "start": "node src/index.js",
     "rotating": "node examples/rotatingWrapper.js",
@@ -40,5 +40,19 @@
     "presets": [
       "@babel/preset-react"
     ]
+  },
+  "@pika/pack": {
+    "pipeline": [
+      [
+        "@pika/plugin-standard-pkg"
+      ],
+      [
+        "@pika/plugin-build-node"
+      ]
+    ]
+  },
+  "devDependencies": {
+    "@pika/plugin-build-node": "^0.3.14",
+    "@pika/plugin-standard-pkg": "^0.3.14"
   }
 }
