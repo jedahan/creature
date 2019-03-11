@@ -1,6 +1,6 @@
 {
   "name": "dwc-creature",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "digital, peer-to-peer, creature",
   "main": "src/Creature.js",
   "scripts": {
