@@ -5,3 +5,4 @@ remote/
 creature-*.json
 .DS_Store
 package-lock.json
+pkg/
