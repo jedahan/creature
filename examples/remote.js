@@ -10,14 +10,14 @@ const creature = new Creature({ key, datPath: path.join(`remote`, key) })
 
 creature.on('connection', console.dir)
 creature.on('update', console.dir)
-creature.on('created', innerCreature => {
+creature.sync().then(innerCreature => {
   const key = innerCreature.dat.key.toString('hex')
   console.log(`dat://${key} syncing!`)
 
   const stats = innerCreature.dat.trackStats()
   let fsTimeout = null
   stats.on('update', _stats => {
-    const filePath = path.join(key, `data.json`)
+    const filePath = path.join(`remote`, key, `data.json`)
     clearInterval(fsTimeout)
     fsTimeout = setTimeout(() => {
       fs.readFile(filePath, (err, data) => {
@@ -37,5 +37,3 @@ creature.on('created', innerCreature => {
     keyMap[String(data) in keyMap ? String(data) : 'h']()
   })
 })
-
-creature.sync()

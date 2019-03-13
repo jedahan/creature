@@ -21,7 +21,6 @@ import { EventEmitter } from 'events'
  * 
  * Once you have a creature, there are some events that can happen:
  * 
- *        `create`: when we are connected to the network
  *        `update`: when the data has changed - will happen multiple times
  *    `connection`: when another dat note has connected to our data
  * 
@@ -59,51 +58,55 @@ class Creature extends EventEmitter {
     })
   }
   sync() {
-    const setDat = (err, dat) => {
-      if (err) console.error(err)
-      this[_dat] = dat
+    return new Promise((resolve, reject) => {
+      const setDat = (err, dat) => {
+        if (err) console.error(err)
+        this[_dat] = dat
 
-      if (!this[_key]) {
-        // Sync files to the given folder, and emit when updated
-        this[_files] = this[_dat].importFiles({ watch: true })
-        let data = ''
-        this[_files].on('put', () => data = '')
-        this[_files].on('put-data', (chunk) => data += chunk)
-        this[_files].on('put-end', () => this.update(JSON.parse(data)))
+        if (!this[_key]) {
+          // Sync files to the given folder, and emit when updated
+          this[_files] = this[_dat].importFiles({ watch: true })
+          let data = ''
+          this[_files].on('put', () => data = '')
+          this[_files].on('put-data', (chunk) => data += chunk)
+          this[_files].on('put-end', () => this.update(JSON.parse(data)))
+        }
+
+        // Sync with the dat network, and emit when we see a new connection
+        this[_network] = this[_dat].joinNetwork()
+        this[_network].on('connection', (connectionInfo, networkInfo) => {
+          const { remoteId, key, discoveryKey } = connectionInfo
+          const { id, host } = networkInfo
+          const connection = { id, remoteId, key, discoveryKey, host }
+          Object.entries(connection).forEach(([k, v]) => k !== 'host' ? connection[k] = v.toString('hex') : '')
+          this.emit('connection', connection)
+        })
+
+        // Proxy this.data so updating is just a matter of setting some data
+        this[_network].on('listening', () => {
+          const that = this
+          resolve(
+            new Proxy(this, {
+              set(target, name, value) {
+                that.update({ ...target[_data], [name]: value })
+                return true
+              },
+              get(target, name) {
+                if (['pause', 'resume', 'data'].includes(name)) return target[name]
+                if (name === 'dat') return target[_dat]
+                return target[_data][name]
+              }
+            })
+          )
+        })
       }
 
-      // Sync with the dat network, and emit when we see a new connection
-      this[_network] = this[_dat].joinNetwork()
-      this[_network].on('connection', (connectionInfo, networkInfo) => {
-        const { remoteId, key, discoveryKey } = connectionInfo
-        const { id, host } = networkInfo
-        const connection = { id, remoteId, key, discoveryKey, host }
-        Object.entries(connection).forEach(([k, v]) => k !== 'host' ? connection[k] = v.toString('hex') : '')
-        this.emit('connection', connection)
-      })
-
-      // Proxy this.data so updating is just a matter of setting some data
-      this[_network].on('listening', () => {
-        const that = this
-        this.emit('created', new Proxy(this, {
-          set(target, name, value) {
-            that.update({ ...target[_data], [name]: value })
-            return true
-          },
-          get(target, name) {
-            if (['pause', 'resume', 'data'].includes(name)) return target[name]
-            if (name === 'dat') return target[_dat]
-            return target[_data][name]
-          }
-        }))
-      })
-    }
-
-    if (this[_key]) {
-      Dat(this[_datPath], { key: this[_key] }, setDat)
-    } else {
-      Dat(this[_datPath], setDat)
-    }
+      if (this[_key]) {
+        Dat(this[_datPath], { key: this[_key] }, setDat)
+      } else {
+        Dat(this[_datPath], setDat)
+      }
+    })
   }
 
   data() {

@@ -7,7 +7,7 @@ const creature = new Creature({ initialData: { face: initialFace } })
 creature.on('connection', console.dir)
 creature.on('update', console.dir)
 
-creature.on('created', innerCreature => {
+creature.sync().then(innerCreature => {
   const key = innerCreature.dat.key.toString('hex')
   console.log(`dat://${key} is ready`)
   process.stdin.setRawMode(true)
@@ -22,5 +22,3 @@ creature.on('created', innerCreature => {
     keyMap[String(data) in keyMap ? String(data) : 'h']()
   })
 })
-
-creature.sync()
