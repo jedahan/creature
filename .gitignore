@@ -3,6 +3,7 @@ node_modules
 remote/
 .dat/
 dat/
+data/
 creature-*.json
 .DS_Store
 package-lock.json
