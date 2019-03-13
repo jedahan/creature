@@ -91,7 +91,7 @@ class Creature extends EventEmitter {
             return true
           },
           get(target, name) {
-            if (['pause', 'resume'].includes(name)) return target[name]
+            if (['pause', 'resume', 'data'].includes(name)) return target[name]
             if (name === 'dat') return target[_dat]
             return target[_data][name]
           }
@@ -104,6 +104,10 @@ class Creature extends EventEmitter {
     } else {
       Dat(this[_datPath], setDat)
     }
+  }
+
+  data() {
+    return this[_data]
   }
 
   pause() {
